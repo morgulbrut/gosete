@@ -26,6 +26,8 @@ func main() {
 	c.Size = 8
 
 	printSettings()
+	fmt.Println()
+	color256.PrintHiCyan("/help:\t for help")
 
 	for {
 		fmt.Print("> ")
@@ -56,14 +58,26 @@ func runCommand(commandStr string) {
 			printSettings()
 		case "/help":
 			printSettings()
+			printHelp()
 		default:
 			serCom(commandStr)
 		}
 	}
 }
 
+func printHelp() {
+	color256.PrintHiGreen("======== COMMANDS =========")
+	fmt.Printf("/exit:\t\t exits the programm\n")
+	fmt.Printf("/quit:\t\t exits the programm\n")
+	fmt.Printf("/port:\t\t sets the serial port, exepts the name like /dev/ttyUSB0 or COM1\n")
+	fmt.Printf("/baud:\t\t sets the baud, excepts a number\n")
+	fmt.Printf("/timeout:\t sets the read timeout, exepts format 2s or 500ms\n")
+	fmt.Printf("/settings:\t shows the settings\n")
+	fmt.Printf("/help:\t\t shows this help\n")
+}
+
 func printSettings() {
-	fmt.Println("======== SETTINGS =========")
+	color256.PrintHiGreen("======== SETTINGS =========")
 	fmt.Printf("Port:\t\t%s\n", c.Name)
 	fmt.Printf("Baud:\t\t%d\n", c.Baud)
 	fmt.Printf("Parity:\t\t%q\n", c.Parity)
@@ -77,23 +91,23 @@ func serCom(msg string) {
 	if err != nil {
 		color256.PrintHiRed(err.Error())
 	} else {
-	defer s.Close()
+		defer s.Close()
 
-	n, err := s.Write([]byte(msg + "\n\r"))
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	for true {
-
-		buf := make([]byte, 512)
-		n, err = s.Read(buf)
+		n, err := s.Write([]byte(msg + "\n\r"))
 		if err != nil {
-				color256.PrintHiRed(err.Error())
+			log.Fatal(err.Error())
 		}
-		fmt.Print(string(buf[:n]))
-		if n == 0 {
-			break
+		for true {
+
+			buf := make([]byte, 512)
+			n, err = s.Read(buf)
+			if err != nil {
+				color256.PrintHiRed(err.Error())
+			}
+			fmt.Print(string(buf[:n]))
+			if n == 0 {
+				break
+			}
 		}
 	}
-}
 }
