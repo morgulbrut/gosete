@@ -75,8 +75,8 @@ func printSettings() {
 func serCom(msg string) {
 	s, err := serial.OpenPort(&c)
 	if err != nil {
-		log.Fatal(err.Error())
-	}
+		color256.PrintHiRed(err.Error())
+	} else {
 	defer s.Close()
 
 	n, err := s.Write([]byte(msg + "\n\r"))
@@ -88,11 +88,12 @@ func serCom(msg string) {
 		buf := make([]byte, 512)
 		n, err = s.Read(buf)
 		if err != nil {
-			color256.Red(err.Error())
+				color256.PrintHiRed(err.Error())
 		}
 		fmt.Print(string(buf[:n]))
 		if n == 0 {
 			break
 		}
 	}
+}
 }
