@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/morgulbrut/color256"
 	"github.com/tarm/serial"
 )
 
@@ -87,7 +88,7 @@ func serCom(msg string) {
 		buf := make([]byte, 512)
 		n, err = s.Read(buf)
 		if err != nil {
-			log.Fatal(err)
+			color256.Red(err.Error())
 		}
 		fmt.Print(string(buf[:n]))
 		if n == 0 {
