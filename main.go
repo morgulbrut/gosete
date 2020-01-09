@@ -21,14 +21,17 @@ func main() {
 
 	flag.StringVar(&c.Name, "port", "/dev/ttyUSB0", "set port")
 	flag.IntVar(&c.Baud, "baud", 115200, "set baudrate")
-	durSt := flag.String("timeout", "3s", "set port")
-	c.Parity = 'N'
-	c.StopBits = 1
-	c.Size = 8
+	durSt := flag.String("timeout", "3s", "set read timeout. format: 5s, 500ms")
+	par := flag.String("parity", "N", "sets the parity. possible values: N, O, E, M, S")
+	stopb := flag.Int("stopbits", 1, "sets the stopbits. possible values: 1, 15, 2")
+	datas := flag.Int("datasize", 8, "sets the datasize")
 
 	flag.Parse()
 
 	c.ReadTimeout, _ = time.ParseDuration(*durSt)
+	c.Parity = serial.Parity([]byte(*par)[0])
+	c.StopBits = serial.StopBits(*stopb)
+	c.Size = byte(*datas)
 
 	printSettings()
 	fmt.Println()
