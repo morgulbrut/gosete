@@ -45,11 +45,11 @@ func main() {
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-		runCommand(cmdString, *s)
+		runCommand(cmdString, s)
 	}
 }
 
-func runCommand(commandStr string, s serial.Port) {
+func runCommand(commandStr string, s *serial.Port) {
 	commandStr = strings.TrimSuffix(commandStr, "\n")
 	arrCommandStr := strings.Fields(commandStr)
 	if len(arrCommandStr) > 0 {
@@ -98,10 +98,6 @@ func printSettings() {
 	fmt.Printf("Stopbits:\t%d\n", c.StopBits)
 	fmt.Printf("Datasize:\t%d\n", c.Size)
 	fmt.Printf("Timeout:\t%q\n", c.ReadTimeout)
-}
-
-func serCom(msg string) {
-
 }
 
 func read(s *serial.Port) {
