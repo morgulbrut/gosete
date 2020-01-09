@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
@@ -102,8 +103,10 @@ func read(s *serial.Port) {
 		buf := make([]byte, 512)
 		n, err := s.Read(buf)
 		if err != nil {
-			color256.PrintHiRed(err.Error())
-			os.Exit(2)
+			if runtime.GOOS == "windows" {
+				color256.PrintHiRed(err.Error())
+				os.Exit(2)
+			}
 		}
 		if n != 0 {
 			fmt.Print(string(buf[:n]))
