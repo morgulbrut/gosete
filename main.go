@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -19,13 +20,16 @@ var s *serial.Port
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 
-	//c.Name = "/dev/ttyUSB0"
-	c.Name = "COM19"
-	c.Baud = 115200
-	c.ReadTimeout = time.Second * 3
+	flag.StringVar(&c.Name, "port", "/dev/ttyUSB0", "set port")
+	flag.IntVar(&c.Baud, "baud", 115200, "set baudrate")
+	durSt := flag.String("timeout", "3s", "set port")
 	c.Parity = 'N'
 	c.StopBits = 1
 	c.Size = 8
+
+	flag.Parse()
+
+	c.ReadTimeout, _ = time.ParseDuration(*durSt)
 
 	printSettings()
 	fmt.Println()
@@ -83,9 +87,6 @@ func printHelp() {
 	color256.PrintHiGreen("======== COMMANDS =========")
 	fmt.Printf("/exit:\t\t exits the programm\n")
 	fmt.Printf("/quit:\t\t exits the programm\n")
-	fmt.Printf("/port:\t\t sets the serial port, exepts the name like /dev/ttyUSB0 or COM1\n")
-	fmt.Printf("/baud:\t\t sets the baud, excepts a number\n")
-	fmt.Printf("/timeout:\t sets the read timeout, exepts format 2s or 500ms\n")
 	fmt.Printf("/settings:\t shows the settings\n")
 	fmt.Printf("/help:\t\t shows this help\n")
 }
@@ -106,6 +107,7 @@ func read(s *serial.Port) {
 		n, err := s.Read(buf)
 		if err != nil {
 			color256.PrintHiRed(err.Error())
+			os.Exit(2)
 		}
 		if n != 0 {
 			fmt.Print(string(buf[:n]))
