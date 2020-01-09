@@ -14,11 +14,13 @@ import (
 )
 
 var c serial.Config
+var s *serial.Port
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 
-	c.Name = "/dev/ttyUSB0"
+	//c.Name = "/dev/ttyUSB0"
+	c.Name = "COM19"
 	c.Baud = 115200
 	c.ReadTimeout = time.Second * 3
 	c.Parity = 'N'
@@ -29,17 +31,25 @@ func main() {
 	fmt.Println()
 	color256.PrintHiCyan("/help:\t for help")
 
+	s, err := serial.OpenPort(&c)
+	if err != nil {
+		color256.PrintHiRed(err.Error())
+	}
+
+	defer s.Close()
+
+	go read(s)
+
 	for {
-		fmt.Print("> ")
 		cmdString, err := reader.ReadString('\n')
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-		runCommand(cmdString)
+		runCommand(cmdString, *s)
 	}
 }
 
-func runCommand(commandStr string) {
+func runCommand(commandStr string, s serial.Port) {
 	commandStr = strings.TrimSuffix(commandStr, "\n")
 	arrCommandStr := strings.Fields(commandStr)
 	if len(arrCommandStr) > 0 {
@@ -60,7 +70,11 @@ func runCommand(commandStr string) {
 			printSettings()
 			printHelp()
 		default:
-			serCom(commandStr)
+			cmd := []byte(commandStr + "\n\r")
+			_, err := s.Write(cmd)
+			if err != nil {
+				log.Fatal(err.Error())
+			}
 		}
 	}
 }
@@ -87,27 +101,18 @@ func printSettings() {
 }
 
 func serCom(msg string) {
-	s, err := serial.OpenPort(&c)
-	if err != nil {
-		color256.PrintHiRed(err.Error())
-	} else {
-		defer s.Close()
 
-		n, err := s.Write([]byte(msg + "\n\r"))
+}
+
+func read(s *serial.Port) {
+	for true {
+		buf := make([]byte, 512)
+		n, err := s.Read(buf)
 		if err != nil {
-			log.Fatal(err.Error())
+			color256.PrintHiRed(err.Error())
 		}
-		for true {
-
-			buf := make([]byte, 512)
-			n, err = s.Read(buf)
-			if err != nil {
-				color256.PrintHiRed(err.Error())
-			}
+		if n != 0 {
 			fmt.Print(string(buf[:n]))
-			if n == 0 {
-				break
-			}
 		}
 	}
 }
