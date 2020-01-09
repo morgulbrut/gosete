@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -62,12 +61,6 @@ func runCommand(commandStr string, s *serial.Port) {
 			os.Exit(0)
 		case "/quit":
 			os.Exit(0)
-		case "/port":
-			c.Name = arrCommandStr[1]
-		case "/baud":
-			c.Baud, _ = strconv.Atoi(arrCommandStr[1])
-		case "/timeout":
-			c.ReadTimeout, _ = time.ParseDuration(arrCommandStr[1])
 		case "/settings":
 			printSettings()
 		case "/help":
