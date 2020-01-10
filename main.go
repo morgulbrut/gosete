@@ -41,6 +41,7 @@ func main() {
 	s, err := serial.OpenPort(&c)
 	if err != nil {
 		color256.PrintHiRed(err.Error())
+		os.Exit(1)
 	}
 
 	defer s.Close()
@@ -51,6 +52,7 @@ func main() {
 		cmdString, err := reader.ReadString('\n')
 		if err != nil {
 			log.Fatal(err.Error())
+			os.Exit(2)
 		}
 		runCommand(cmdString, s)
 	}
@@ -104,7 +106,7 @@ func read(s *serial.Port) {
 		n, err := s.Read(buf)
 		if err != nil {
 			if runtime.GOOS == "windows" {
-				color256.PrintHiRed(err.Error())
+				color256.PrintHiRed("[read]: " + err.Error())
 				os.Exit(2)
 			}
 		}
